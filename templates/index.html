@@ -43,8 +43,13 @@ body::after{
 textarea,input,button{font-family:var(--font-sans)}
 textarea:focus,input:focus{outline:none}
 .sr-only{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.fade-in{animation:fi .3s ease}
+.fade-in{animation:fi .3s ease both}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.post-new{animation:postIn .45s cubic-bezier(.22,.68,0,1.2) both}
+@keyframes postIn{
+  from{opacity:0;transform:translateY(-18px) scale(0.97)}
+  to  {opacity:1;transform:translateY(0)     scale(1)}
+}
 </style>
 </head>
 <body>
@@ -179,6 +184,7 @@ let state={
   guidelinesDismissed:false,
   reportHistory:[],
   reportHistoryLoaded:false,
+  _newPostId:null,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -263,7 +269,8 @@ function render(){
     const postCards=S.posts.map(p=>{
       const ec=ECFG[p.emotion]||ECFG.neutral;
       const liked=S.likedPosts[p.id];
-      return `<div class="fade-in" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;margin-bottom:12px;overflow:hidden">
+      const isNew=S._newPostId===p.id;
+      return `<div class="${isNew?'post-new':''}" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;margin-bottom:12px;overflow:hidden">
         <div style="display:flex;align-items:center;gap:10px;padding:12px 14px 8px">
           <div style="width:38px;height:38px;border-radius:50%;background:${ec.bg};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:${ec.color};flex-shrink:0">${p.avatar}</div>
           <div style="flex:1;min-width:0">
@@ -350,7 +357,7 @@ function render(){
         ?`<p style="text-align:center;font-size:13px;color:var(--color-text-secondary);padding:2rem 0">You haven't posted yet. Go to the feed tab to share how you're doing.</p>`
         :myPosts.map(p=>{
           const ec=ECFG[p.emotion]||ECFG.neutral;
-          return `<div class="fade-in" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;margin-bottom:10px">
+          return `<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;margin-bottom:10px">
             <p style="font-size:14px;color:var(--color-text-primary);margin-bottom:8px;line-height:1.5">${p.text}</p>
             <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">${(p.tags||[]).map(t=>`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${NEG_TAGS.includes(t)?'#FAEEDA':'#E1F5EE'};color:${NEG_TAGS.includes(t)?'#633806':'#085041'}">${t}</span>`).join("")}</div>
             <div style="display:flex;align-items:center;gap:8px">
@@ -1101,6 +1108,7 @@ async function doPost(){
     });
     if(resp.ok){
       const data=await resp.json();
+      state._newPostId=data.post.id;
       state.posts.unshift(data.post);
       if(data.weekData) state.weekData=data.weekData;
     }
@@ -1119,6 +1127,7 @@ async function doPost(){
 
   state.newText=""; state.newTags=[]; state.analyzing=false;
   render();
+  if(state._newPostId) setTimeout(()=>{ state._newPostId=null; },500);
 }
 
 function setAnswer(key,val){
@@ -1192,10 +1201,12 @@ async function pollFeed(){
 
 function loadNewPosts(){
   const pending=(state._pendingPosts||[]);
+  if(pending.length>0) state._newPostId=pending[0].id;
   pending.forEach(p=>{ _knownIds.add(p.id); state.posts.unshift(p); });
   state._pendingPosts=[];
   state.newPostsAvailable=0;
   render();
+  if(state._newPostId) setTimeout(()=>{ state._newPostId=null; },500);
 }
 
 // Poll every 20 seconds
