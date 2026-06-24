@@ -50,6 +50,54 @@ textarea:focus,input:focus{outline:none}
   from{opacity:0;transform:translateY(-18px) scale(0.97)}
   to  {opacity:1;transform:translateY(0)     scale(1)}
 }
+.post-card{
+  background:rgba(255,255,255,0.88);
+  border:1px solid rgba(37,99,235,0.1);
+  border-radius:16px;
+  margin-bottom:12px;
+  overflow:hidden;
+  box-shadow:0 1px 6px rgba(37,99,235,0.05);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+  cursor:default;
+}
+.post-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(37,99,235,0.12);
+  border-color:rgba(37,99,235,0.25);
+}
+.btn-blue{
+  background:#2563EB;color:#fff;border:none;cursor:pointer;
+  border-radius:10px;font-weight:600;font-family:inherit;
+  transition:background .15s ease,transform .12s ease,box-shadow .15s ease;
+}
+.btn-blue:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,0.3)}
+.btn-blue:active{transform:translateY(0);box-shadow:none}
+.btn-ghost{
+  border:none;background:transparent;cursor:pointer;
+  border-radius:8px;padding:4px 8px;
+  transition:background .15s ease,color .15s ease,transform .12s ease;
+}
+.btn-ghost:hover{background:rgba(37,99,235,0.08);transform:scale(1.08)}
+.btn-ghost:active{transform:scale(0.96)}
+.tag-pill{
+  display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;
+  cursor:pointer;border:0.5px solid rgba(37,99,235,0.15);
+  transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;
+}
+.tag-pill:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(37,99,235,0.15);opacity:.9}
+.tag-pill:active{transform:scale(0.96)}
+.quiz-opt{
+  width:100%;padding:11px 14px;border-radius:10px;font-size:13px;cursor:pointer;
+  text-align:left;font-family:inherit;
+  transition:background .15s ease,border-color .15s ease,transform .12s ease;
+}
+.quiz-opt:hover{transform:translateX(3px)}
+.nav-btn{
+  flex:1;padding:10px 2px 8px;border:none;background:transparent;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;
+  transition:color .15s ease,opacity .15s ease;
+}
+.nav-btn:hover{opacity:.85}
 </style>
 </head>
 <body>
@@ -257,7 +305,7 @@ function render(){
     </div>`:"";
 
   const nav=`<div style="display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10">
-    ${NAV_ITEMS.map(n=>`<button onclick="switchTab('${n.key}')" style="flex:1;padding:10px 2px 8px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:${S.tab===n.key?'2px solid #2563EB':'2px solid transparent'};color:${S.tab===n.key?'#2563EB':'var(--color-text-secondary)'};font-size:10px;font-weight:${S.tab===n.key?600:400}">
+    ${NAV_ITEMS.map(n=>`<button onclick="switchTab('${n.key}')" class="nav-btn" style="border-bottom:${S.tab===n.key?'2px solid #2563EB':'2px solid transparent'};color:${S.tab===n.key?'#2563EB':'var(--color-text-secondary)'};font-weight:${S.tab===n.key?600:400}">
       <i class="ti ${n.icon}" style="font-size:19px" aria-hidden="true"></i>${n.label}
     </button>`).join("")}
   </div>`;
@@ -270,7 +318,7 @@ function render(){
       const ec=ECFG[p.emotion]||ECFG.neutral;
       const liked=S.likedPosts[p.id];
       const isNew=S._newPostId===p.id;
-      return `<div class="${isNew?'post-new':''}" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;margin-bottom:12px;overflow:hidden">
+      return `<div class="post-card${isNew?' post-new':''}" style="">
         <div style="display:flex;align-items:center;gap:10px;padding:12px 14px 8px">
           <div style="width:38px;height:38px;border-radius:50%;background:${ec.bg};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:${ec.color};flex-shrink:0">${p.avatar}</div>
           <div style="flex:1;min-width:0">
@@ -283,19 +331,19 @@ function render(){
         <div style="padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px">
           ${(p.tags||[]).map(t=>`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:${NEG_TAGS.includes(t)?'#FAEEDA':'#E1F5EE'};color:${NEG_TAGS.includes(t)?'#633806':'#085041'}">${t}</span>`).join("")}
         </div>
-        <div style="display:flex;border-top:0.5px solid var(--color-border-tertiary);padding:8px 14px;gap:12px;align-items:center">
-          <button onclick="toggleLike(${p.id})" style="border:none;background:transparent;cursor:pointer;font-size:12px;color:${liked?'#D85A30':'var(--color-text-secondary)'};display:flex;align-items:center;gap:4px">
-            <i class="ti ti-heart" style="font-size:16px" aria-hidden="true"></i>${(p.likes+(liked?1:0))}
+        <div style="display:flex;border-top:0.5px solid var(--color-border-tertiary);padding:6px 10px;gap:4px;align-items:center">
+          <button onclick="toggleLike(${p.id})" class="btn-ghost" style="font-size:12px;color:${liked?'#D85A30':'var(--color-text-secondary)'};display:flex;align-items:center;gap:4px">
+            <i class="ti ti-heart${liked?' ti-filled':''}" style="font-size:16px" aria-hidden="true"></i>${(p.likes+(liked?1:0))}
           </button>
-          <button onclick="openComments(${p.id})" style="border:none;background:transparent;cursor:pointer;font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px" id="cmtbtn-${p.id}">
+          <button onclick="openComments(${p.id})" class="btn-ghost" style="font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px" id="cmtbtn-${p.id}">
             <i class="ti ti-message-circle" style="font-size:16px" aria-hidden="true"></i><span id="cmtcount-${p.id}">${p.comments}</span>
           </button>
-          <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+          <div style="margin-left:auto;display:flex;align-items:center;gap:2px">
             ${S.feedbackGiven[p.id]
-              ?`<span style="font-size:10px;color:var(--color-text-secondary)">AI: ${ec.label} · ${S.feedbackGiven[p.id]==="up"?"👍":"👎"} rated</span>`
-              :`<span style="font-size:10px;color:var(--color-text-secondary)">AI: ${ec.label}</span>
-                <button onclick="giveFeedback(${p.id},'${p.emotion}',true)" title="Prediction correct" style="border:none;background:transparent;cursor:pointer;font-size:14px;padding:2px 4px" aria-label="Correct">👍</button>
-                <button onclick="giveFeedback(${p.id},'${p.emotion}',false)" title="Prediction wrong" style="border:none;background:transparent;cursor:pointer;font-size:14px;padding:2px 4px" aria-label="Wrong">👎</button>`}
+              ?`<span style="font-size:10px;color:var(--color-text-secondary);padding:2px 6px">AI: ${ec.label} · ${S.feedbackGiven[p.id]==="up"?"👍":"👎"}</span>`
+              :`<span style="font-size:10px;color:var(--color-text-secondary);padding:0 4px">AI: ${ec.label}</span>
+                <button onclick="giveFeedback(${p.id},'${p.emotion}',true)" class="btn-ghost" title="Correct" style="font-size:15px" aria-label="Correct">👍</button>
+                <button onclick="giveFeedback(${p.id},'${p.emotion}',false)" class="btn-ghost" title="Wrong" style="font-size:15px" aria-label="Wrong">👎</button>`}
           </div>
         </div>
       </div>`;
@@ -317,11 +365,11 @@ function render(){
           </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">
-          ${TAGS.slice(0,8).map(t=>`<button onclick="toggleTag('${t}')" style="font-size:11px;padding:3px 8px;border-radius:20px;cursor:pointer;background:${S.newTags.includes(t)?(NEG_TAGS.includes(t)?'#BA7517':'#1D9E75'):'#F1F5F9'};color:${S.newTags.includes(t)?'#fff':'var(--color-text-secondary)'};border:0.5px solid var(--color-border-tertiary)">${t}</button>`).join("")}
+          ${TAGS.slice(0,8).map(t=>`<button onclick="toggleTag('${t}')" class="tag-pill" style="background:${S.newTags.includes(t)?(NEG_TAGS.includes(t)?'#BA7517':'#1D9E75'):'#F1F5F9'};color:${S.newTags.includes(t)?'#fff':'var(--color-text-secondary)'}">${t}</button>`).join("")}
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:0.5px solid var(--color-border-tertiary);padding-top:10px">
           <span style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-lock" style="font-size:13px;vertical-align:-2px" aria-hidden="true"></i> ${MODEL_READY?'AI-traced, private':'AI loading…'}</span>
-          <button onclick="doPost()" style="padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:${btnOk?'pointer':'not-allowed'};background:${btnOk?'#2563EB':'#F1F5F9'};color:${btnOk?'#fff':'var(--color-text-secondary)'};border:none">
+          <button onclick="doPost()" class="${btnOk?'btn-blue':''}" style="padding:7px 16px;font-size:13px;cursor:${btnOk?'pointer':'not-allowed'};background:${btnOk?'':'#F1F5F9'};color:${btnOk?'':'var(--color-text-secondary)'};border:none;border-radius:10px">
             ${S.analyzing?'Tracing…':'Post'}
           </button>
         </div>
@@ -527,7 +575,7 @@ function render(){
           <div style="display:flex;flex-direction:column;gap:8px">
             ${QLABELS.map((lbl,val)=>{
               const active=S.checkInAnswers[q.key]===val;
-              return `<button onclick="setAnswer('${q.key}',${val})" style="padding:11px 14px;border-radius:8px;font-size:13px;cursor:pointer;text-align:left;background:${active?'#DBEAFE':'var(--color-background-secondary)'};color:${active?'#1e3a8a':'var(--color-text-primary)'};border:${active?'1.5px solid #2563EB':'0.5px solid var(--color-border-tertiary)'};font-weight:${active?500:400}">
+              return `<button onclick="setAnswer('${q.key}',${val})" class="quiz-opt" style="background:${active?'#DBEAFE':'var(--color-background-secondary)'};color:${active?'#1e3a8a':'var(--color-text-primary)'};border:${active?'1.5px solid #2563EB':'0.5px solid var(--color-border-tertiary)'};font-weight:${active?500:400}">
                 ${val} — ${lbl}
               </button>`;
             }).join("")}
