@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+safeguard.db
+safeguard.db-shm
+safeguard.db-wal
+*.Zone.Identifier
+*.zip

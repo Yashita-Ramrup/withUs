@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Model Insights — SafeGuard{% endblock %}
+{% block content %}
+
+<div class="ptitle">Model Insights</div>
+<div class="psub">How the AI sees your posts — emotion distribution and confidence breakdown.</div>
+
+<div class="card">
+  <div style="font-weight:600;margin-bottom:8px">AI Model</div>
+  <div class="model-tags">
+    <span class="mtag">j-hartmann/emotion-english-distilroberta-base</span>
+    <span class="mtag">7 emotion classes</span>
+    <span class="mtag">Fine-tuned on 6 datasets</span>
+    <span class="mtag">{{ total_posts }} post{{ 's' if total_posts != 1 }} analysed</span>
+  </div>
+</div>
+
+{% if total_posts > 0 %}
+
+<div class="card">
+  <div style="font-weight:600;margin-bottom:14px">Emotion Distribution <span style="font-weight:400;color:var(--muted);font-size:13px">(post count)</span></div>
+  <canvas id="countChart" height="110"></canvas>
+</div>
+
+<div class="card">
+  <div style="font-weight:600;margin-bottom:14px">Average Model Confidence <span style="font-weight:400;color:var(--muted);font-size:13px">per emotion (0–1)</span></div>
+  <canvas id="confChart" height="110"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const labels  = {{ emotions | tojson }};
+const counts  = {{ counts   | tojson }};
+const conf    = {{ avg_conf | tojson }};
+const palette = ['#EF4444','#A855F7','#F97316','#F59E0B','#6B7280','#3B82F6','#06B6D4'];
+
+const base = {
+  type: 'bar',
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, grid: { color: '#f0f0f0' } }
+    }
+  }
+};
+
+new Chart(document.getElementById('countChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ data: counts, backgroundColor: palette, borderRadius: 6, borderSkipped: false }]
+  },
+  options: base.options
+});
+
+new Chart(document.getElementById('confChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ data: conf, backgroundColor: palette, borderRadius: 6, borderSkipped: false }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { beginAtZero: true, max: 1, grid: { color: '#f0f0f0' } }
+    }
+  }
+});
+</script>
+
+{% else %}
+<div class="empty">
+  <div class="big">📊</div>
+  <div class="etitle">No data yet</div>
+  <div>Analyse some posts on the Feed tab to see charts here.</div>
+  <a href="{{ url_for('feed') }}" class="btn btn-blue" style="margin-top:20px">Go to Feed</a>
+</div>
+{% endif %}
+
+{% endblock %}

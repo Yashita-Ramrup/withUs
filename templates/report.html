@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}My Report — SafeGuard{% endblock %}
+{% block content %}
+
+<div class="ptitle">Your Private Report</div>
+<div class="psub">This report is for you alone — it is never shared without your consent.</div>
+
+{% if report %}
+
+{# ── Stat cards ── #}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-val" style="font-size:16px">{{ report.week }}</div>
+    <div class="stat-lbl">Week</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val">{{ report.quiz_score }}<span style="font-size:14px;color:var(--muted)">/24</span></div>
+    <div class="stat-lbl">Wellbeing score</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-val">{{ report.emotion_summary.values() | sum }}</div>
+    <div class="stat-lbl">Posts analysed</div>
+  </div>
+</div>
+
+{# ── Emotion signals ── #}
+<div class="card">
+  <div style="font-weight:600;margin-bottom:10px">Emotion signals this week</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    {% set has_any = namespace(v=false) %}
+    {% for emotion, cnt in report.emotion_summary.items() %}
+    {% if cnt > 0 %}
+    {% set has_any.v = true %}
+    {% set meta = emotion_meta[emotion] %}
+    <span class="badge" style="background:{{ meta.light }};color:{{ meta.color }}">
+      {{ meta.emoji }} {{ emotion }}: {{ cnt }}
+    </span>
+    {% endif %}
+    {% endfor %}
+    {% if not has_any.v %}
+    <span style="color:var(--muted);font-size:14px">No negative emotion signals detected this week 🎉</span>
+    {% endif %}
+  </div>
+</div>
+
+{# ── Supportive message — raw risk tier NEVER shown to user ── #}
+<div class="report-msg">
+  <div style="font-size:12px;font-weight:600;opacity:.75;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
+    A note for you 💙
+  </div>
+  {{ report.supportive_message }}
+</div>
+
+{% if report.needs_human_review %}
+<div class="card" style="border-left:4px solid #ffc107;background:#fffef5">
+  <div style="font-size:14px;color:#7c5c00">
+    <strong>Support is available.</strong> A trained reviewer has been notified using your
+    anonymous code only — not your name. No action is automatic.
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+
+<div class="empty">
+  <div class="big">📋</div>
+  <div class="etitle">No report yet</div>
+  <div>Complete the weekly check-in to see your private report here.</div>
+  <a href="{{ url_for('quiz') }}" class="btn btn-blue" style="margin-top:20px">Go to Check-in</a>
+</div>
+
+{% endif %}
+{% endblock %}

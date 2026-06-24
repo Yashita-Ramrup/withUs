@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}WithUs — Log in{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div>
+    <div class="login-box">
+      <div class="login-logo">WithUs</div>
+
+      {% if error %}
+      <div class="flash error" style="margin-bottom:12px">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('login') }}">
+        <input type="text" name="username" placeholder="Username" autofocus autocomplete="username">
+        <input type="password" name="password" placeholder="Password" autocomplete="current-password"
+               style="width:100%;padding:10px 9px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:#fafafa;margin-bottom:10px;font-family:inherit;outline:none">
+        <button type="submit" class="btn btn-blue" style="width:100%;padding:10px;font-size:15px">
+          Log in / Sign up
+        </button>
+      </form>
+
+      <div class="login-sub">New here? Just pick a username and password — your account is created automatically.<br>Your real identity is never stored.</div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

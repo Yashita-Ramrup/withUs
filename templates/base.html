@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}WithUs{% endblock %}</title>
+<style>
+:root {
+  --ig: linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  --blue: #0095f6;
+  --bg: #fafafa;
+  --card: #ffffff;
+  --border: #dbdbdb;
+  --text: #262626;
+  --muted: #8e8e8e;
+  --r: 12px;
+  --pill: 24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+
+/* ── Layout ── */
+.layout{display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:245px;min-height:100vh;padding:16px 12px;
+  border-right:1px solid var(--border);background:#fff;
+  position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;gap:2px;
+  overflow-y:auto
+}
+.logo{
+  padding:14px 10px 22px;font-size:24px;font-weight:800;
+  font-style:italic;letter-spacing:-0.5px;
+  background:var(--ig);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text
+}
+.nav-link{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 10px;border-radius:10px;
+  text-decoration:none;color:var(--text);
+  font-size:15px;transition:background .12s
+}
+.nav-link:hover{background:#f5f5f5}
+.nav-link.active{font-weight:700}
+.nav-link .ni{font-size:22px;width:28px;text-align:center}
+.sidebar-user{
+  margin-top:auto;padding:14px 10px 4px;
+  border-top:1px solid var(--border)
+}
+.avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--ig);display:flex;align-items:center;
+  justify-content:center;color:#fff;font-weight:700;
+  font-size:16px;flex-shrink:0
+}
+.avatar.sm{width:32px;height:32px;font-size:13px}
+
+/* ── Main area ── */
+.main{flex:1;padding:28px 24px;max-width:660px;margin:0 auto}
+
+/* ── Cards ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:14px
+}
+
+/* ── Post card ── */
+.post-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.post-meta{display:flex;align-items:center;gap:10px}
+.post-name{font-weight:700;font-size:14px}
+.post-time{color:var(--muted);font-size:12px;margin-top:1px}
+.post-body{font-size:15px;line-height:1.55;margin-bottom:10px}
+
+/* ── Emotion badge ── */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 11px;border-radius:var(--pill);
+  font-size:13px;font-weight:600;white-space:nowrap
+}
+
+/* ── Story row ── */
+.stories{display:flex;gap:14px;overflow-x:auto;padding:4px 0 14px;margin-bottom:4px}
+.story{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+.story-ring{
+  width:66px;height:66px;border-radius:50%;padding:3px;
+  display:flex;align-items:center;justify-content:center
+}
+.story-ring.on{background:var(--ig)}
+.story-ring.off{background:var(--border)}
+.story-inner{
+  width:100%;height:100%;border-radius:50%;
+  background:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:28px;border:2px solid #fff
+}
+.story-name{font-size:11px;color:var(--muted);text-align:center;max-width:70px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.story-cnt{font-size:13px;font-weight:700}
+
+/* ── Post input ── */
+.post-input textarea{
+  width:100%;border:none;outline:none;resize:none;
+  font-family:inherit;font-size:15px;color:var(--text);
+  min-height:70px;background:transparent
+}
+.post-input textarea::placeholder{color:var(--muted)}
+.divider{height:1px;background:var(--border);margin:10px 0}
+.input-foot{display:flex;justify-content:space-between;align-items:center}
+
+/* ── Buttons ── */
+.btn{
+  padding:8px 20px;border:none;border-radius:var(--pill);
+  cursor:pointer;font-family:inherit;font-size:14px;
+  font-weight:600;transition:opacity .12s;text-decoration:none;
+  display:inline-block
+}
+.btn:hover{opacity:.88}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:disabled{background:#b3d7f7;cursor:not-allowed}
+.btn-outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue)}
+.btn-green{background:#0da552;color:#fff}
+.btn-red{background:#ed4956;color:#fff}
+
+/* ── Flash ── */
+.flash{padding:11px 14px;border-radius:8px;margin-bottom:14px;font-size:14px}
+.flash.warning{background:#fff8e1;color:#7c5c00;border:1px solid #ffd54f}
+.flash.error{background:#fdecea;color:#8b1a1a;border:1px solid #f5c6cb}
+.flash.success{background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7}
+
+/* ── Quiz pills ── */
+.quiz-opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.qpill input[type=radio]{display:none}
+.qpill label{
+  padding:8px 17px;border:1.5px solid var(--border);
+  border-radius:var(--pill);cursor:pointer;font-size:14px;
+  transition:all .12s;display:block;color:var(--text)
+}
+.qpill label:hover{border-color:var(--blue);color:var(--blue)}
+.qpill input[type=radio]:checked+label{
+  background:var(--blue);border-color:var(--blue);color:#fff
+}
+
+/* ── Report ── */
+.report-msg{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  border-radius:var(--r);padding:22px 24px;
+  color:#fff;font-size:15px;line-height:1.65;margin:14px 0
+}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;text-align:center}
+.stat-val{font-size:22px;font-weight:700}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ── Reviewer table ── */
+.rtable{width:100%;border-collapse:collapse;font-size:14px}
+.rtable th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);
+  font-weight:600;color:var(--muted)}
+.rtable td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.rtable tr:last-child td{border-bottom:none}
+.tier{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.tier-medium{background:#fff3cd;color:#856404}
+.tier-high{background:#f8d7da;color:#721c24}
+
+/* ── Model insights ── */
+.model-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mtag{background:#f0f0f0;padding:4px 10px;border-radius:20px;font-size:12px}
+
+/* ── Login ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-box{background:#fff;border:1px solid var(--border);border-radius:4px;padding:36px 40px 24px;width:350px}
+.login-logo{text-align:center;font-size:36px;font-weight:800;font-style:italic;
+  margin-bottom:22px;background:var(--ig);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.login-box input[type=text]{
+  width:100%;padding:10px 9px;border:1px solid var(--border);
+  border-radius:6px;font-size:14px;background:#fafafa;
+  margin-bottom:10px;font-family:inherit;outline:none
+}
+.login-box input[type=text]:focus{border-color:#a8a8a8}
+.login-sub{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .big{font-size:46px;margin-bottom:14px}
+.empty .etitle{font-size:17px;font-weight:600;margin-bottom:6px;color:var(--text)}
+
+/* ── Page titles ── */
+.ptitle{font-size:21px;font-weight:700;margin-bottom:4px}
+.psub{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+{% if session.user_id %}
+<div class="layout">
+  <nav class="sidebar">
+    <div class="logo">🛡️ WithUs</div>
+
+    <a href="{{ url_for('main_app') }}" class="nav-link {{ 'active' if request.endpoint == 'main_app' }}">
+      <span class="ni">🏠</span> App
+    </a>
+
+    <div class="sidebar-user">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="avatar sm">{{ session.display_name[0] | upper }}</div>
+        <div>
+          <div style="font-size:14px;font-weight:600">{{ session.display_name }}</div>
+          <a href="{{ url_for('logout') }}" style="font-size:12px;color:var(--muted);text-decoration:none">Log out</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% if session.user_id %}
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>

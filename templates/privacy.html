@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>WithUs — Data & Privacy</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.33.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f4f0;
+  --color-border-tertiary:#e5e3db;
+  --color-text-primary:#2c2c2a;
+  --color-text-secondary:#888780;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--color-background-secondary);font-family:var(--font-sans);padding-bottom:3rem}
+</style>
+</head>
+<body>
+<div style="max-width:420px;margin:0 auto;padding:0">
+
+  <!-- Header -->
+  <div style="background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10">
+    <a href="/app" style="color:var(--color-text-secondary);text-decoration:none">
+      <i class="ti ti-arrow-left" style="font-size:20px" aria-hidden="true"></i>
+    </a>
+    <p style="font-size:16px;font-weight:500;color:var(--color-text-primary)">Data & Privacy</p>
+  </div>
+
+  <div style="padding:16px">
+
+    <!-- Identity banner -->
+    <div style="background:#EEEDFE;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start">
+      <i class="ti ti-incognito" style="font-size:22px;color:#534AB7;flex-shrink:0;margin-top:2px" aria-hidden="true"></i>
+      <div>
+        <p style="font-size:13px;font-weight:600;color:#26215C;margin-bottom:3px">You are anonymous</p>
+        <p style="font-size:12px;color:#534AB7;line-height:1.5">Logged in as <strong>{{ display_name }}</strong>. Your real name is never stored — only a one-way SHA-256 hash of your username. Even the WithUs team cannot reverse it.</p>
+      </div>
+    </div>
+
+    <!-- What we collect -->
+    <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">What we store</p>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden;margin-bottom:16px">
+      {% set rows = [
+        ("ti-fingerprint",  "#534AB7", "#EEEDFE", "Anonymous ID",    "A 64-character SHA-256 hash of your username. Cannot be reversed."),
+        ("ti-message",      "#1D9E75", "#E1F5EE", "Your posts",      "The text you type and tags you choose. Stored as written."),
+        ("ti-brain",        "#BA7517", "#FAEEDA", "Emotion scores",  "AI-detected emotion label + confidence score per post. Not your raw text again."),
+        ("ti-clipboard",    "#534AB7", "#EEEDFE", "Screening scores","Your weekly ASSIST quiz answers as a numeric total only — not individual answers."),
+        ("ti-calendar",     "#888780", "#F1EFE8", "Week identifier", "ISO week string (e.g. 2026-W26). No timestamp with your identity."),
+      ] %}
+      {% for icon, color, bg, label, desc in rows %}
+      <div style="display:flex;gap:12px;padding:12px 14px;{% if not loop.last %}border-bottom:0.5px solid var(--color-border-tertiary);{% endif %}align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:8px;background:{{ bg }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti {{ icon }}" style="font-size:16px;color:{{ color }}" aria-hidden="true"></i>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary)">{{ label }}</p>
+          <p style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;margin-top:2px">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- What we NEVER store -->
+    <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">What we NEVER store</p>
+    <div style="background:#FCEBEB;border-radius:12px;padding:14px 16px;margin-bottom:16px">
+      {% for item in ["Your real name or national ID","Your IP address or device fingerprint","Your location","Individual quiz answers (only the total score)","Any data shared with advertisers or third parties","Biometric data of any kind"] %}
+      <div style="display:flex;align-items:center;gap:8px;{% if not loop.last %}margin-bottom:8px;{% endif %}">
+        <i class="ti ti-x" style="font-size:14px;color:#A32D2D;flex-shrink:0" aria-hidden="true"></i>
+        <p style="font-size:12px;color:#501313">{{ item }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Stakeholder access model -->
+    <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Who can see what</p>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden;margin-bottom:16px">
+      {% set stakeholders = [
+        ("ti-user",          "#534AB7","#EEEDFE","You (the user)",      "Full access to your own posts and report. No one else's data."),
+        ("ti-heart-handshake","#1D9E75","#E1F5EE","NGO counsellors",    "See anonymised risk flags only (no name, no post text). Can mark as 'support offered'."),
+        ("ti-school",        "#BA7517","#FAEEDA","School deans",        "Aggregate statistics only — e.g. '3 students flagged this week'. Zero individual data."),
+        ("ti-stethoscope",   "#534AB7","#EEEDFE","Psychologists",       "Anonymised flagged reports + emotion pattern summary. Never the user's identity."),
+        ("ti-shield-lock",   "#A32D2D","#FCEBEB","WithUs team / admin", "Database access for maintenance only. All records are anonymised at rest."),
+      ] %}
+      {% for icon, color, bg, role, access in stakeholders %}
+      <div style="display:flex;gap:12px;padding:12px 14px;{% if not loop.last %}border-bottom:0.5px solid var(--color-border-tertiary);{% endif %}align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:8px;background:{{ bg }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti {{ icon }}" style="font-size:16px;color:{{ color }}" aria-hidden="true"></i>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary)">{{ role }}</p>
+          <p style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;margin-top:2px">{{ access }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Data flow -->
+    <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">How data flows</p>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px;margin-bottom:16px">
+      {% set steps = [
+        ("1","You post or complete a screening","Your text is sent over HTTPS to our server. Never stored in plain text in the browser."),
+        ("2","AI analyses emotion","The j-hartmann model runs on-server. Only the emotion label + confidence score is saved — not the model's intermediate computation."),
+        ("3","Risk score computed privately","Quiz + emotion combined into a score. Stored only against your anonymous ID. Never sent to third parties automatically."),
+        ("4","Human reviewer notified (if flagged)","Medium/high risk triggers a notification to a trained reviewer — anonymous ID only, no post content. Reviewer can offer support."),
+        ("5","You choose what happens next","No automatic referral. No punitive action. You can delete all your data at any time."),
+      ] %}
+      {% for num, title, desc in steps %}
+      <div style="display:flex;gap:12px;{% if not loop.last %}margin-bottom:14px;padding-bottom:14px;border-bottom:0.5px solid var(--color-border-tertiary);{% endif %}">
+        <div style="width:24px;height:24px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;margin-top:1px">{{ num }}</div>
+        <div>
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">{{ title }}</p>
+          <p style="font-size:11px;color:var(--color-text-secondary);line-height:1.5">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Compliance -->
+    <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Compliance</p>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden;margin-bottom:16px">
+      {% set compliance = [
+        ("Mauritius DPA 2017",  "Primary applicable law. Data collected with explicit consent, minimised, and purpose-limited to substance misuse early detection."),
+        ("GDPR (EU) principles","App is designed to meet GDPR standards: lawful basis (consent), data minimisation, purpose limitation, storage limitation, and integrity."),
+        ("HIPAA principles",    "Although HIPAA is US law, we apply its core safeguards: de-identification, minimum necessary access, and no disclosure without consent."),
+        ("No social media sync","Posts exist only within WithUs. Nothing is shared to Facebook, Instagram, or any external platform."),
+        ("No data selling",     "User data is never sold, rented, or shared with advertisers. The product is the support tool, not the data."),
+      ] %}
+      {% for standard, detail in compliance %}
+      <div style="padding:12px 14px;{% if not loop.last %}border-bottom:0.5px solid var(--color-border-tertiary);{% endif %}">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <i class="ti ti-circle-check" style="font-size:14px;color:#1D9E75" aria-hidden="true"></i>
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary)">{{ standard }}</p>
+        </div>
+        <p style="font-size:11px;color:var(--color-text-secondary);line-height:1.5;padding-left:20px">{{ detail }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Your rights -->
+    <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Your rights</p>
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden;margin-bottom:16px">
+      <div style="padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)">
+        <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px">Download my data</p>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">Export everything WithUs holds about you as a JSON file (GDPR Art. 20).</p>
+        <a href="/api/export-data" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;background:#EEEDFE;color:#534AB7;text-decoration:none">
+          <i class="ti ti-download" style="font-size:14px" aria-hidden="true"></i> Export my data
+        </a>
+      </div>
+      <div style="padding:12px 14px">
+        <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px">Delete my account</p>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">Permanently erase all your posts, screening results, and account record. This cannot be undone (GDPR Art. 17).</p>
+        <button onclick="confirmDelete()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;background:#FCEBEB;color:#A32D2D;border:none;cursor:pointer">
+          <i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i> Delete all my data
+        </button>
+      </div>
+    </div>
+
+    <!-- Storage note -->
+    <div style="background:var(--color-background-secondary);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+      <p style="font-size:11px;color:var(--color-text-secondary);line-height:1.6">
+        <strong style="color:var(--color-text-primary)">Storage:</strong> Data is held in an encrypted SQLite database on the WithUs server. In a production deployment this would use a hardened PostgreSQL instance with row-level security, TLS in transit, and AES-256 at rest.<br><br>
+        <strong style="color:var(--color-text-primary)">Retention:</strong> Data is kept for a maximum of 12 months from last login, then automatically deleted. You can request earlier deletion at any time using the button above.
+      </p>
+    </div>
+
+    <a href="/app" style="display:block;text-align:center;font-size:13px;color:var(--color-text-secondary);text-decoration:none;padding:8px">← Back to WithUs</a>
+
+  </div>
+</div>
+
+<script>
+async function confirmDelete(){
+  if(!confirm("This will permanently delete all your posts, screening results, and account. This cannot be undone.\n\nAre you sure?")) return;
+  const r = await fetch("/api/delete-account", {method:"POST"});
+  if(r.ok){
+    alert("All your data has been deleted. You will now be logged out.");
+    window.location.href="/login";
+  } else {
+    alert("Something went wrong. Please try again.");
+  }
+}
+</script>
+</body>
+</html>

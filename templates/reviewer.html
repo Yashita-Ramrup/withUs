@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Reviewer Queue — SafeGuard{% endblock %}
+{% block content %}
+
+<div class="ptitle">Human Review Queue</div>
+<div class="psub">Trained reviewers only — users are identified by anonymous code, never by name.</div>
+
+{% if queue %}
+<div class="card" style="padding:0;overflow:hidden">
+  <table class="rtable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Anon user</th>
+        <th>Week</th>
+        <th>Score</th>
+        <th>Tier</th>
+        <th>Action</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in queue %}
+      <tr>
+        <td style="color:var(--muted)">{{ item.id }}</td>
+        <td><code style="font-size:12px;background:#f5f5f5;padding:2px 6px;border-radius:4px">{{ item.short_user }}</code></td>
+        <td>{{ item.week }}</td>
+        <td>{{ item.combined_score | round(1) }}&thinsp;/&thinsp;24</td>
+        <td>
+          <span class="tier tier-{{ item.risk_tier }}">{{ item.risk_tier | upper }}</span>
+        </td>
+        <td>
+          {% if item.reviewer_action %}
+            <span style="color:#0da552;font-size:13px">✅ Referral offered</span>
+          {% else %}
+            <span style="color:var(--muted);font-size:13px">Pending</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if not item.reviewer_action %}
+          <form method="POST" action="{{ url_for('mark_referral', report_id=item.id) }}">
+            <button type="submit" class="btn btn-green" style="padding:6px 13px;font-size:13px">
+              Offer Referral
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {# Detail sub-row #}
+      <tr style="background:#fafafa">
+        <td colspan="7" style="padding:10px 14px;font-size:13px;color:var(--muted)">
+          Quiz: {{ item.report.quiz_score }}/24 ·
+          Emotion score: {{ item.report.emotion_score }}/24 ·
+          Signals:
+          {% for e, c in item.report.emotion_summary.items() %}{% if c > 0 %}{{ e }}:{{ c }} {% endif %}{% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<div class="empty">
+  <div class="big">✅</div>
+  <div class="etitle">Queue is clear</div>
+  <div>No reports are currently flagged for review.</div>
+</div>
+{% endif %}
+
+{% endblock %}
