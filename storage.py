@@ -219,6 +219,27 @@ def get_comment_counts(post_ids: list[int]) -> dict[int, int]:
     return {r["post_id"]: r["cnt"] for r in rows}
 
 
+def delete_post(post_id: int, anon_user_id: str) -> bool:
+    # Delete a post only if it belongs to the requesting user, returns True if deleted
+    with _connect() as conn:
+        rows = conn.execute(
+            "DELETE FROM posts WHERE id=? AND anon_user_id=?", (post_id, anon_user_id)
+        ).rowcount
+        if rows:
+            conn.execute("DELETE FROM post_comments WHERE post_id=?", (post_id,))
+    return rows > 0
+
+
+def update_post(post_id: int, anon_user_id: str, new_text: str) -> bool:
+    # Update the text of a post only if it belongs to the requesting user
+    with _connect() as conn:
+        rows = conn.execute(
+            "UPDATE posts SET text=? WHERE id=? AND anon_user_id=?",
+            (new_text, post_id, anon_user_id)
+        ).rowcount
+    return rows > 0
+
+
 def get_all_posts(anon_user_id: str) -> list[dict[str, Any]]:
     # Return the full post history for a user, newest first
     with _connect() as conn:

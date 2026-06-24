@@ -624,5 +624,29 @@ def chart_weekly():
     return Response(buf, mimetype="image/png")
 
 
+@app.route("/api/post/<int:post_id>", methods=["DELETE"])
+@login_required
+def api_delete_post(post_id: int):
+    # Delete a post — only the author can do this
+    deleted = storage.delete_post(post_id, session["user_id"])
+    if not deleted:
+        return jsonify(error="Not found or not yours."), 403
+    return jsonify(ok=True)
+
+
+@app.route("/api/post/<int:post_id>", methods=["PATCH"])
+@login_required
+def api_edit_post(post_id: int):
+    # Edit the text of a post — only the author can do this
+    data     = request.get_json(force=True)
+    new_text = (data.get("text") or "").strip()
+    if not new_text:
+        return jsonify(error="Text is required."), 400
+    updated = storage.update_post(post_id, session["user_id"], new_text)
+    if not updated:
+        return jsonify(error="Not found or not yours."), 403
+    return jsonify(ok=True, text=new_text)
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

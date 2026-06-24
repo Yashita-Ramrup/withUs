@@ -233,6 +233,7 @@ let state={
   reportHistory:[],
   reportHistoryLoaded:false,
   _newPostId:null,
+  editModal:{open:false,postId:null,draft:""},
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -339,11 +340,18 @@ function render(){
             <i class="ti ti-message-circle" style="font-size:16px" aria-hidden="true"></i><span id="cmtcount-${p.id}">${p.comments}</span>
           </button>
           <div style="margin-left:auto;display:flex;align-items:center;gap:2px">
-            ${S.feedbackGiven[p.id]
-              ?`<span style="font-size:10px;color:var(--color-text-secondary);padding:2px 6px">AI: ${ec.label} · ${S.feedbackGiven[p.id]==="up"?"👍":"👎"}</span>`
-              :`<span style="font-size:10px;color:var(--color-text-secondary);padding:0 4px">AI: ${ec.label}</span>
-                <button onclick="giveFeedback(${p.id},'${p.emotion}',true)" class="btn-ghost" title="Correct" style="font-size:15px" aria-label="Correct">👍</button>
-                <button onclick="giveFeedback(${p.id},'${p.emotion}',false)" class="btn-ghost" title="Wrong" style="font-size:15px" aria-label="Wrong">👎</button>`}
+            ${p.isOwn
+              ?`<button onclick="openEditPost(${p.id},${JSON.stringify(p.text)})" class="btn-ghost" title="Edit post" style="color:#2563EB;font-size:12px;display:flex;align-items:center;gap:3px">
+                  <i class="ti ti-pencil" style="font-size:15px" aria-hidden="true"></i>
+                </button>
+                <button onclick="deletePost(${p.id})" class="btn-ghost" title="Delete post" style="color:#991B1B;font-size:12px;display:flex;align-items:center;gap:3px">
+                  <i class="ti ti-trash" style="font-size:15px" aria-hidden="true"></i>
+                </button>`
+              :S.feedbackGiven[p.id]
+                ?`<span style="font-size:10px;color:var(--color-text-secondary);padding:2px 6px">AI: ${ec.label} · ${S.feedbackGiven[p.id]==="up"?"👍":"👎"}</span>`
+                :`<span style="font-size:10px;color:var(--color-text-secondary);padding:0 4px">AI: ${ec.label}</span>
+                  <button onclick="giveFeedback(${p.id},'${p.emotion}',true)" class="btn-ghost" title="Correct" style="font-size:15px" aria-label="Correct">👍</button>
+                  <button onclick="giveFeedback(${p.id},'${p.emotion}',false)" class="btn-ghost" title="Wrong" style="font-size:15px" aria-label="Wrong">👎</button>`}
           </div>
         </div>
       </div>`;
@@ -960,6 +968,22 @@ function render(){
     ${nav}
     <div style="padding:0 14px">${content}${resourceModal}</div>
     ${commentModal}
+    ${(()=>{
+      if(!S.editModal.open) return "";
+      return `<div onclick="closeEditPost()" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center">
+        <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px" class="fade-in">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <p style="font-size:15px;font-weight:700;color:#1e293b">Edit post</p>
+            <button onclick="closeEditPost()" class="btn-ghost" style="color:#64748b"><i class="ti ti-x" style="font-size:20px" aria-hidden="true"></i></button>
+          </div>
+          <textarea id="editdraft" rows="4" style="width:100%;font-size:14px;line-height:1.6;border:1.5px solid #DBEAFE;border-radius:12px;padding:10px 12px;resize:none;font-family:inherit;color:#1e293b;background:#F8FAFF;outline:none"></textarea>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <button onclick="closeEditPost()" style="flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:500;background:#F1F5F9;color:#64748b;border:none;cursor:pointer">Cancel</button>
+            <button onclick="submitEditPost()" class="btn-blue" style="flex:1;padding:11px;font-size:13px">Save changes</button>
+          </div>
+        </div>
+      </div>`;
+    })()}
   `;
 
   // Restore textarea value without losing cursor
@@ -980,6 +1004,14 @@ function render(){
     });
     cta.dispatchEvent(new Event("input"));
     cta.focus();
+  }
+
+  const eta=document.getElementById("editdraft");
+  if(eta){
+    eta.value=state.editModal.draft;
+    eta.addEventListener("input",e=>{ state.editModal.draft=e.target.value; });
+    eta.focus();
+    eta.setSelectionRange(eta.value.length,eta.value.length);
   }
 }
 
@@ -1259,6 +1291,50 @@ function loadNewPosts(){
 
 // Poll every 20 seconds
 setInterval(pollFeed, 20000);
+
+// ── Delete / edit post ────────────────────────────────────────────────────
+async function deletePost(postId){
+  if(!confirm("Delete this post? This cannot be undone.")) return;
+  try{
+    const r=await fetch(`/api/post/${postId}`,{method:"DELETE"});
+    if(r.ok){
+      state.posts=state.posts.filter(p=>p.id!==postId);
+      render();
+    } else {
+      alert("Could not delete — not found or not yours.");
+    }
+  }catch(e){ alert("Error deleting post."); }
+}
+
+function openEditPost(postId, currentText){
+  state.editModal={open:true, postId, draft:currentText};
+  render();
+}
+
+function closeEditPost(){
+  state.editModal={open:false, postId:null, draft:""};
+  render();
+}
+
+async function submitEditPost(){
+  const {postId, draft}=state.editModal;
+  if(!draft.trim()) return;
+  try{
+    const r=await fetch(`/api/post/${postId}`,{
+      method:"PATCH",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({text:draft.trim()}),
+    });
+    if(r.ok){
+      const data=await r.json();
+      const p=state.posts.find(p=>p.id===postId);
+      if(p) p.text=data.text;
+      closeEditPost();
+    } else {
+      alert("Could not save — not found or not yours.");
+    }
+  }catch(e){ alert("Error saving edit."); }
+}
 
 // ── Live emotion preview ──────────────────────────────────────────────────
 function liveEmotion(text){
