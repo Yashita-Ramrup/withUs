@@ -341,7 +341,7 @@ function render(){
           </button>
           <div style="margin-left:auto;display:flex;align-items:center;gap:2px">
             ${p.isOwn
-              ?`<button onclick="openEditPost(${p.id},${JSON.stringify(p.text)})" class="btn-ghost" title="Edit post" style="color:#2563EB;font-size:12px;display:flex;align-items:center;gap:3px">
+              ?`<button onclick="openEditPost(${p.id})" class="btn-ghost" title="Edit post" style="color:#2563EB;font-size:12px;display:flex;align-items:center;gap:3px">
                   <i class="ti ti-pencil" style="font-size:15px" aria-hidden="true"></i>
                 </button>
                 <button onclick="deletePost(${p.id})" class="btn-ghost" title="Delete post" style="color:#991B1B;font-size:12px;display:flex;align-items:center;gap:3px">
@@ -1306,8 +1306,9 @@ async function deletePost(postId){
   }catch(e){ alert("Error deleting post."); }
 }
 
-function openEditPost(postId, currentText){
-  state.editModal={open:true, postId, draft:currentText};
+function openEditPost(postId){
+  const p=state.posts.find(x=>x.id===postId);
+  state.editModal={open:true, postId, draft:p?p.text:""};
   render();
 }
 
