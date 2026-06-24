@@ -8,14 +8,38 @@
 <style>
 :root{
   --color-background-primary:#ffffff;
-  --color-background-secondary:#f5f4f0;
-  --color-border-tertiary:#e5e3db;
-  --color-text-primary:#2c2c2a;
-  --color-text-secondary:#888780;
+  --color-background-secondary:#EFF6FF;
+  --color-border-tertiary:#DBEAFE;
+  --color-text-primary:#1e293b;
+  --color-text-secondary:#64748b;
   --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--color-background-secondary);font-family:var(--font-sans)}
+body{
+  background:#EFF6FF;
+  font-family:var(--font-sans);
+  position:relative;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;width:520px;height:520px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,0.15) 0%,transparent 70%);
+  top:-130px;left:-150px;pointer-events:none;z-index:0;
+  animation:orb1 9s ease-in-out infinite alternate;
+}
+body::after{
+  content:'';position:fixed;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(29,158,117,0.12) 0%,transparent 70%);
+  bottom:-80px;right:-80px;pointer-events:none;z-index:0;
+  animation:orb2 11s ease-in-out infinite alternate;
+}
+.orb3{
+  position:fixed;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,0.09) 0%,transparent 70%);
+  bottom:30%;left:-80px;pointer-events:none;z-index:0;
+  animation:orb1 13s ease-in-out infinite alternate-reverse;
+}
+@keyframes orb1{from{transform:translate(0,0) scale(1)}to{transform:translate(35px,25px) scale(1.07)}}
+@keyframes orb2{from{transform:translate(0,0) scale(1)}to{transform:translate(-25px,-18px) scale(1.05)}}
 textarea,input,button{font-family:var(--font-sans)}
 textarea:focus,input:focus{outline:none}
 .sr-only{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
@@ -25,8 +49,9 @@ textarea:focus,input:focus{outline:none}
 </head>
 <body>
 
+<div class="orb3" aria-hidden="true"></div>
 <h2 class="sr-only">WithUs — social wellness platform with AI mood tracing</h2>
-<div id="root" style="max-width:420px;margin:0 auto;padding:0 0 2rem"></div>
+<div id="root" style="max-width:420px;margin:0 auto;padding:0 0 2rem;position:relative;z-index:1"></div>
 
 <script>
 // ── Data injected by Flask ─────────────────────────────────────────────────
@@ -45,7 +70,7 @@ const PALETTE={
   teal:"#1D9E75",tealBg:"#E1F5EE",tealText:"#085041",
   amber:"#BA7517",amberBg:"#FAEEDA",amberText:"#633806",
   red:"#A32D2D",redBg:"#FCEBEB",redText:"#501313",
-  purple:"#534AB7",purpleBg:"#EEEDFE",purpleText:"#26215C",
+  purple:"#2563EB",purpleBg:"#DBEAFE",purpleText:"#1e3a8a",
   gray:"#888780",grayBg:"#F1EFE8",grayText:"#2C2C2A",
 };
 
@@ -53,20 +78,11 @@ const TAGS=["#sober-today","#craving","#relapsed","#recovery","#triggered","#pee
 const NEG_TAGS=["#craving","#relapsed","#triggered","#peer-pressure","#used-last-night","#withdrawing","#ashamed","#isolated"];
 const POS_TAGS=["#sober-today","#recovery","#clean-week","#resisted","#seeking-help","#proud","#supported","#strong"];
 
-// Demo community posts — substance-misuse context
-const DEMO_POSTS=[
-  {id:-1,avatar:"AK",name:"Alex K.",time:"1h",text:"3 weeks clean today. Hardest thing I've ever done but I finally feel like myself again.",tags:["#sober-today","#clean-week"],likes:47,comments:9,emotion:"joy",score:0.88,responseTime:30,isOwn:false},
-  {id:-2,avatar:"MR",name:"Maya R.",time:"3h",text:"The cravings hit hardest when I'm alone at home. Don't know how much longer I can hold on.",tags:["#craving","#triggered"],likes:6,comments:11,emotion:"fear",score:0.84,responseTime:420,isOwn:false},
-  {id:-3,avatar:"JD",name:"Jamie D.",time:"5h",text:"Party last night. Everyone was passing stuff around. I said no. Small win but it means everything.",tags:["#resisted","#proud"],likes:62,comments:14,emotion:"joy",score:0.91,responseTime:12,isOwn:false},
-  {id:-4,avatar:"SL",name:"Sam L.",time:"6h",text:"Slipped up last night. Feeling ashamed. Not sure who to tell or where to turn.",tags:["#relapsed","#ashamed"],likes:4,comments:8,emotion:"sadness",score:0.89,responseTime:510,isOwn:false},
-  {id:-5,avatar:"PW",name:"Priya W.",time:"8h",text:"Family found out. The look on their faces when they saw me. I can't get it out of my head.",tags:["#ashamed","#isolated"],likes:9,comments:5,emotion:"sadness",score:0.86,responseTime:380,isOwn:false},
-  {id:-6,avatar:"TC",name:"Tom C.",time:"10h",text:"One month clean. I called the Befrienders line last week and it actually helped. You are not alone.",tags:["#clean-week","#recovery","#supported"],likes:88,comments:21,emotion:"joy",score:0.93,responseTime:15,isOwn:false},
-];
 
 const ECFG={
   joy:{color:"#1D9E75",bg:"#E1F5EE",label:"Joy"},
   sadness:{color:"#378ADD",bg:"#E6F1FB",label:"Sadness"},
-  fear:{color:"#534AB7",bg:"#EEEDFE",label:"Anxiety"},
+  fear:{color:"#2563EB",bg:"#DBEAFE",label:"Anxiety"},
   anger:{color:"#D85A30",bg:"#FAECE7",label:"Anger"},
   disgust:{color:"#A855F7",bg:"#F5F3FF",label:"Disgust"},
   surprise:{color:"#06B6D4",bg:"#ECFEFF",label:"Surprise"},
@@ -140,7 +156,7 @@ const TIPS={
 // ── State ─────────────────────────────────────────────────────────────────
 let state={
   tab:"feed",
-  posts:[...FEED_POSTS,...DEMO_POSTS],
+  posts:[...FEED_POSTS],
   newPostsAvailable:0,
   newText:"",
   newTags:[],
@@ -160,6 +176,9 @@ let state={
   feedbackCorrect:   FEEDBACK_STATS.correct,
   weekData:          Object.assign({}, WEEK_DATA),
   commentModal:{open:false,postId:null,postText:"",comments:[],loading:false,submitting:false,draft:""},
+  guidelinesDismissed:false,
+  reportHistory:[],
+  reportHistoryLoaded:false,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────
@@ -193,16 +212,27 @@ function render(){
   const tier=tierColor(S.riskTier);
 
   const NAV_ITEMS=[
-    {key:"feed",   icon:"ti-layout-grid",    label:"Feed"},
-    {key:"my",     icon:"ti-user",           label:"Mine"},
-    {key:"report", icon:"ti-chart-bar",      label:"Report"},
-    {key:"checkin",icon:"ti-clipboard-check",label:"Screen"},
-    {key:"ai",     icon:"ti-brain",          label:"AI"},
+    {key:"feed",    icon:"ti-layout-grid",    label:"Feed"},
+    {key:"my",      icon:"ti-user",           label:"Mine"},
+    {key:"report",  icon:"ti-chart-bar",      label:"Report"},
+    {key:"checkin", icon:"ti-clipboard-check",label:"Screen"},
+    {key:"ai",      icon:"ti-brain",          label:"AI"},
+    {key:"settings",icon:"ti-settings",       label:"Settings"},
   ];
 
-  const nav=`<div style="display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px;background:var(--color-background-primary);position:sticky;top:0;z-index:10">
-    ${NAV_ITEMS.map(n=>`<button onclick="switchTab('${n.key}')" style="flex:1;padding:12px 4px 10px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:${S.tab===n.key?'2px solid #534AB7':'2px solid transparent'};color:${S.tab===n.key?'#534AB7':'var(--color-text-secondary)'};font-size:11px;font-weight:${S.tab===n.key?500:400}">
-      <i class="ti ${n.icon}" style="font-size:20px" aria-hidden="true"></i>${n.label}
+  const guidelinesBanner=(!S.guidelinesDismissed)?`
+    <div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:12px;padding:10px 14px;margin:12px 14px 0;display:flex;align-items:flex-start;gap:10px">
+      <i class="ti ti-heart-handshake" style="font-size:18px;color:#2563EB;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+      <div style="flex:1;font-size:12px;color:#1e3a8a;line-height:1.6">
+        <strong>Community rules:</strong> Be kind · Support each other · No bullying · No judging · No cyberbullying.
+        This is a safe space for recovery.
+      </div>
+      <button onclick="ST('guidelinesDismissed',true)" style="border:none;background:transparent;cursor:pointer;color:#64748b;padding:0;font-size:16px;line-height:1;flex-shrink:0">×</button>
+    </div>`:"";
+
+  const nav=`<div style="display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10">
+    ${NAV_ITEMS.map(n=>`<button onclick="switchTab('${n.key}')" style="flex:1;padding:10px 2px 8px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:${S.tab===n.key?'2px solid #2563EB':'2px solid transparent'};color:${S.tab===n.key?'#2563EB':'var(--color-text-secondary)'};font-size:10px;font-weight:${S.tab===n.key?600:400}">
+      <i class="ti ${n.icon}" style="font-size:19px" aria-hidden="true"></i>${n.label}
     </button>`).join("")}
   </div>`;
 
@@ -246,21 +276,25 @@ function render(){
 
     const btnOk=S.newText.trim()&&!S.analyzing;
     content=`
-      ${S.newPostsAvailable>0?`<button onclick="loadNewPosts()" style="width:100%;padding:9px;border-radius:10px;font-size:13px;font-weight:500;background:#534AB7;color:#fff;border:none;cursor:pointer;margin-bottom:10px">
+      ${S.newPostsAvailable>0?`<button onclick="loadNewPosts()" style="width:100%;padding:9px;border-radius:10px;font-size:13px;font-weight:500;background:#2563EB;color:#fff;border:none;cursor:pointer;margin-bottom:10px">
         <i class="ti ti-refresh" style="font-size:14px;vertical-align:-2px;margin-right:5px" aria-hidden="true"></i>
         ${S.newPostsAvailable} new post${S.newPostsAvailable>1?'s':''} — tap to load
       </button>`:''}
-      <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div style="width:36px;height:36px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#534AB7;flex-shrink:0">${USER_INITIALS}</div>
-          <textarea id="newpost" rows="2" placeholder="How are you doing with your recovery today?" style="flex:1;resize:none;font-size:13px;line-height:1.5;border:none;background:transparent;color:var(--color-text-primary)"></textarea>
+      <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);border:1px solid var(--color-border-tertiary);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px rgba(37,99,235,0.06)">
+        <div style="font-size:11px;color:#64748b;margin-bottom:8px">Be kind · No judging · No bullying · Support each other</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#2563EB;flex-shrink:0">${USER_INITIALS}</div>
+          <div style="flex:1">
+            <textarea id="newpost" rows="2" placeholder="How are you doing with your recovery today?" style="width:100%;resize:none;font-size:13px;line-height:1.5;border:none;background:transparent;color:var(--color-text-primary)"></textarea>
+            ${(()=>{const e=liveEmotion(S.newText);return e&&ECFG[e]?`<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${ECFG[e].bg};color:${ECFG[e].color}">${ECFG[e].label}</span>`:"";})()}
+          </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">
-          ${TAGS.slice(0,8).map(t=>`<button onclick="toggleTag('${t}')" style="font-size:11px;padding:3px 8px;border-radius:20px;cursor:pointer;background:${S.newTags.includes(t)?(NEG_TAGS.includes(t)?'#BA7517':'#1D9E75'):'var(--color-background-secondary)'};color:${S.newTags.includes(t)?'#fff':'var(--color-text-secondary)'};border:0.5px solid var(--color-border-tertiary)">${t}</button>`).join("")}
+          ${TAGS.slice(0,8).map(t=>`<button onclick="toggleTag('${t}')" style="font-size:11px;padding:3px 8px;border-radius:20px;cursor:pointer;background:${S.newTags.includes(t)?(NEG_TAGS.includes(t)?'#BA7517':'#1D9E75'):'#F1F5F9'};color:${S.newTags.includes(t)?'#fff':'var(--color-text-secondary)'};border:0.5px solid var(--color-border-tertiary)">${t}</button>`).join("")}
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:0.5px solid var(--color-border-tertiary);padding-top:10px">
           <span style="font-size:11px;color:var(--color-text-secondary)"><i class="ti ti-lock" style="font-size:13px;vertical-align:-2px" aria-hidden="true"></i> ${MODEL_READY?'AI-traced, private':'AI loading…'}</span>
-          <button onclick="doPost()" style="padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:${btnOk?'pointer':'not-allowed'};background:${btnOk?'#534AB7':'var(--color-background-secondary)'};color:${btnOk?'#fff':'var(--color-text-secondary)'};border:none">
+          <button onclick="doPost()" style="padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:${btnOk?'pointer':'not-allowed'};background:${btnOk?'#2563EB':'#F1F5F9'};color:${btnOk?'#fff':'var(--color-text-secondary)'};border:none">
             ${S.analyzing?'Tracing…':'Post'}
           </button>
         </div>
@@ -274,10 +308,10 @@ function render(){
     const myPosts=S.posts.filter(p=>p.isOwn);
     content=`
       <div style="background:var(--color-background-secondary);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
-        <div style="width:56px;height:56px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#534AB7;margin:0 auto 10px">${USER_INITIALS}</div>
+        <div style="width:56px;height:56px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#2563EB;margin:0 auto 10px">${USER_INITIALS}</div>
         <p style="font-size:15px;font-weight:500;color:var(--color-text-primary)">${DISPLAY_NAME}</p>
         <p style="font-size:12px;color:var(--color-text-secondary)">All activity is anonymised — your ID is private</p>
-        <a href="/privacy" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;color:#534AB7;text-decoration:none;padding:5px 10px;border-radius:6px;background:#EEEDFE">
+        <a href="/privacy" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;color:#2563EB;text-decoration:none;padding:5px 10px;border-radius:6px;background:#DBEAFE">
           <i class="ti ti-shield-lock" style="font-size:13px" aria-hidden="true"></i> Data &amp; Privacy
         </a>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
@@ -317,12 +351,12 @@ function render(){
       const postsThisWeek=S.posts.filter(p=>p.isOwn).length;
       content=`
         <div style="text-align:center;padding:2rem 1rem 1rem">
-          <div style="width:60px;height:60px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
-            <i class="ti ti-clipboard-check" style="font-size:28px;color:#534AB7" aria-hidden="true"></i>
+          <div style="width:60px;height:60px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+            <i class="ti ti-clipboard-check" style="font-size:28px;color:#2563EB" aria-hidden="true"></i>
           </div>
           <p style="font-size:17px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px">No report yet this week</p>
           <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:20px">Complete your ASSIST substance screening to generate your personalised weekly risk report.</p>
-          <button onclick="ST('tab','checkin')" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;background:#534AB7;color:#fff;border:none;cursor:pointer">
+          <button onclick="ST('tab','checkin')" style="padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;background:#2563EB;color:#fff;border:none;cursor:pointer">
             <i class="ti ti-clipboard-check" style="font-size:16px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>
             Take this week's screening
           </button>
@@ -444,7 +478,7 @@ function render(){
         </div>
         <p style="font-size:17px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">ASSIST screening complete</p>
         <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:16px">Score: ${S.checkInScore}/${CHECKIN_QUESTIONS.length*3} · Risk signal: <span style="color:${t.c};font-weight:500">${t.label.split("—")[0].trim()}</span></p>
-        <button onclick="ST('tab','report')" style="padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;background:#534AB7;color:#fff;border:none;cursor:pointer">View my weekly report</button>
+        <button onclick="ST('tab','report')" style="padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;background:#2563EB;color:#fff;border:none;cursor:pointer">View my weekly report</button>
       </div>`;
     } else {
       const step=S.quizStep;
@@ -458,7 +492,7 @@ function render(){
             <p style="font-size:12px;color:var(--color-text-secondary)">${progress}%</p>
           </div>
           <div style="height:4px;background:var(--color-background-secondary);border-radius:4px">
-            <div style="height:4px;width:${progress}%;background:#534AB7;border-radius:4px;transition:width .3s"></div>
+            <div style="height:4px;width:${progress}%;background:#2563EB;border-radius:4px;transition:width .3s"></div>
           </div>
         </div>
         <div class="fade-in" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:18px;margin-bottom:16px">
@@ -466,7 +500,7 @@ function render(){
           <div style="display:flex;flex-direction:column;gap:8px">
             ${QLABELS.map((lbl,val)=>{
               const active=S.checkInAnswers[q.key]===val;
-              return `<button onclick="setAnswer('${q.key}',${val})" style="padding:11px 14px;border-radius:8px;font-size:13px;cursor:pointer;text-align:left;background:${active?'#EEEDFE':'var(--color-background-secondary)'};color:${active?'#26215C':'var(--color-text-primary)'};border:${active?'1.5px solid #534AB7':'0.5px solid var(--color-border-tertiary)'};font-weight:${active?500:400}">
+              return `<button onclick="setAnswer('${q.key}',${val})" style="padding:11px 14px;border-radius:8px;font-size:13px;cursor:pointer;text-align:left;background:${active?'#DBEAFE':'var(--color-background-secondary)'};color:${active?'#1e3a8a':'var(--color-text-primary)'};border:${active?'1.5px solid #2563EB':'0.5px solid var(--color-border-tertiary)'};font-weight:${active?500:400}">
                 ${val} — ${lbl}
               </button>`;
             }).join("")}
@@ -474,7 +508,7 @@ function render(){
         </div>
         <div style="display:flex;gap:8px">
           ${step>0?`<button onclick="prevQ()" style="padding:10px 16px;border-radius:8px;font-size:13px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);cursor:pointer">Back</button>`:""}
-          ${S.checkInAnswers[q.key]!==undefined?`<button onclick="nextQ()" style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:500;background:#534AB7;color:#fff;border:none;cursor:pointer">${step===totalQ-1?"Submit check-in":"Next question"}</button>`:""}
+          ${S.checkInAnswers[q.key]!==undefined?`<button onclick="nextQ()" style="flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:500;background:#2563EB;color:#fff;border:none;cursor:pointer">${step===totalQ-1?"Submit check-in":"Next question"}</button>`:""}
         </div>
         <p style="margin-top:10px;font-size:11px;color:var(--color-text-secondary);text-align:center"><i class="ti ti-lock" style="font-size:12px;vertical-align:-1px" aria-hidden="true"></i> Your answers are private</p>
       `;
@@ -507,8 +541,8 @@ function render(){
       <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Model card</p>
       <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;margin-bottom:14px">
         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">
-          <div style="width:40px;height:40px;border-radius:10px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <i class="ti ti-brain" style="font-size:22px;color:#534AB7" aria-hidden="true"></i>
+          <div style="width:40px;height:40px;border-radius:10px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="ti ti-brain" style="font-size:22px;color:#2563EB" aria-hidden="true"></i>
           </div>
           <div>
             <p style="font-size:13px;font-weight:600;color:var(--color-text-primary)">${MODEL_INFO.name}</p>
@@ -538,9 +572,9 @@ function render(){
       <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Accuracy</p>
       <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;margin-bottom:14px">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-          <div style="background:#EEEDFE;border-radius:8px;padding:10px;text-align:center">
-            <p style="font-size:20px;font-weight:700;color:#534AB7">${Math.round(MODEL_INFO.f1*100)}%</p>
-            <p style="font-size:9px;color:#534AB7;margin-top:2px">Transformer F1</p>
+          <div style="background:#DBEAFE;border-radius:8px;padding:10px;text-align:center">
+            <p style="font-size:20px;font-weight:700;color:#2563EB">${Math.round(MODEL_INFO.f1*100)}%</p>
+            <p style="font-size:9px;color:#2563EB;margin-top:2px">Transformer F1</p>
             <p style="font-size:8px;color:var(--color-text-secondary)">7-class general</p>
           </div>
           <div style="background:#E1F5EE;border-radius:8px;padding:10px;text-align:center">
@@ -585,7 +619,7 @@ function render(){
           {icon:"ti-flag",        color:"#A32D2D", label:"Substance-risk tags",     value:S.weekData.negTagCount+" this week",  note:"Tags like #craving, #relapsed, #triggered detected"},
           {icon:"ti-trending-up", color:"#1D9E75", label:"Recovery tags",           value:S.weekData.posTagCount+" this week",  note:"Tags like #sober-today, #resisted, #clean-week detected"},
           {icon:"ti-message",     color:"#BA7517", label:"Post frequency",          value:S.weekData.postsCount+" this week",   note:"Sudden drop or spike in posting is a behavioural signal"},
-          {icon:"ti-mood-sad",    color:"#534AB7", label:"High-risk emotion days",  value:(()=>{const n=S.weekData.moods.filter(m=>["sadness","fear","anger","disgust"].includes(m.emotion)).length;return n+"/7 days";})(), note:"Days where AI detected negative emotional states from posts"},
+          {icon:"ti-mood-sad",    color:"#2563EB", label:"High-risk emotion days",  value:(()=>{const n=S.weekData.moods.filter(m=>["sadness","fear","anger","disgust"].includes(m.emotion)).length;return n+"/7 days";})(), note:"Days where AI detected negative emotional states from posts"},
         ].map(b=>`<div style="display:flex;gap:12px;padding:11px 14px;border-bottom:0.5px solid var(--color-border-tertiary);align-items:flex-start">
           <i class="ti ${b.icon}" style="font-size:18px;color:${b.color};flex-shrink:0;margin-top:2px" aria-hidden="true"></i>
           <div style="flex:1;min-width:0">
@@ -612,7 +646,7 @@ function render(){
 
       <!-- RL feedback section -->
       <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Reinforcement learning loop</p>
-      <div style="background:#EEEDFE;border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="background:#DBEAFE;border-radius:12px;padding:14px;margin-bottom:14px">
 
         <!-- Pipeline steps -->
         <div style="display:flex;align-items:center;gap:4px;margin-bottom:14px;flex-wrap:wrap">
@@ -625,11 +659,11 @@ function render(){
           ].map((s,i,arr)=>`
             <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:44px">
               <div style="width:32px;height:32px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center">
-                <i class="ti ${s.icon}" style="font-size:16px;color:#534AB7" aria-hidden="true"></i>
+                <i class="ti ${s.icon}" style="font-size:16px;color:#2563EB" aria-hidden="true"></i>
               </div>
-              <span style="font-size:9px;color:#26215C;text-align:center;line-height:1.2">${s.label}</span>
+              <span style="font-size:9px;color:#1e3a8a;text-align:center;line-height:1.2">${s.label}</span>
             </div>
-            ${i<arr.length-1?`<i class="ti ti-chevron-right" style="font-size:12px;color:#534AB7;flex-shrink:0;margin-bottom:14px" aria-hidden="true"></i>`:''}`
+            ${i<arr.length-1?`<i class="ti ti-chevron-right" style="font-size:12px;color:#2563EB;flex-shrink:0;margin-bottom:14px" aria-hidden="true"></i>`:''}`
           ).join("")}
         </div>
 
@@ -640,7 +674,7 @@ function render(){
             {l:"Correct labels",  v:S.feedbackCorrect},
             {l:"Community acc.",  v:S.communityAccuracy!==null?S.communityAccuracy+'%':'—'},
           ].map(m=>`<div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
-            <p style="font-size:16px;font-weight:700;color:#534AB7">${m.v}</p>
+            <p style="font-size:16px;font-weight:700;color:#2563EB">${m.v}</p>
             <p style="font-size:9px;color:var(--color-text-secondary);margin-top:2px">${m.l}</p>
           </div>`).join("")}
         </div>
@@ -650,25 +684,25 @@ function render(){
           const target=80;
           const cur=S.communityAccuracy||0;
           const pct=Math.min(Math.round(cur/target*100),100);
-          const barColor=cur>=80?'#1D9E75':cur>=60?'#BA7517':'#534AB7';
+          const barColor=cur>=80?'#1D9E75':cur>=60?'#BA7517':'#2563EB';
           return `<div style="margin-bottom:12px">
             <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-              <span style="font-size:10px;font-weight:600;color:#26215C">Progress toward 80% community accuracy</span>
+              <span style="font-size:10px;font-weight:600;color:#1e3a8a">Progress toward 80% community accuracy</span>
               <span style="font-size:10px;font-weight:600;color:${barColor}">${cur>0?cur+'%':'No votes yet'}</span>
             </div>
             <div style="height:8px;background:#C8C4F0;border-radius:4px;overflow:hidden">
               <div style="height:8px;width:${pct}%;background:${barColor};border-radius:4px;transition:width .6s"></div>
             </div>
-            <p style="font-size:9px;color:#534AB7;margin-top:4px">${cur>=80?'✓ Target reached — model ready for fine-tuning':'Rate predictions in the Feed tab to push this higher'}</p>
+            <p style="font-size:9px;color:#2563EB;margin-top:4px">${cur>=80?'✓ Target reached — model ready for fine-tuning':'Rate predictions in the Feed tab to push this higher'}</p>
           </div>`;
         })()}
 
         <!-- Train button -->
-        <button onclick="runTraining()" id="trainBtn" style="width:100%;padding:10px;border-radius:8px;font-size:13px;font-weight:600;background:#534AB7;color:#fff;border:none;cursor:pointer">
+        <button onclick="runTraining()" id="trainBtn" style="width:100%;padding:10px;border-radius:8px;font-size:13px;font-weight:600;background:#2563EB;color:#fff;border:none;cursor:pointer">
           <i class="ti ti-cpu" style="font-size:15px;vertical-align:-2px;margin-right:6px" aria-hidden="true"></i>
           Run RL calibration step
         </button>
-        <div id="trainResult" style="margin-top:8px;font-size:11px;color:#26215C;display:none"></div>
+        <div id="trainResult" style="margin-top:8px;font-size:11px;color:#1e3a8a;display:none"></div>
       </div>
 
       <!-- GAN section -->
@@ -688,7 +722,7 @@ function render(){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
           ${[
             {icon:"ti-robot",    color:"#A855F7", label:"Generator",     desc:"Learns to produce realistic substance-misuse posts for a target emotion"},
-            {icon:"ti-eye",      color:"#534AB7", label:"Discriminator", desc:"Learns to distinguish real posts from generated ones — drives quality up"},
+            {icon:"ti-eye",      color:"#2563EB", label:"Discriminator", desc:"Learns to distinguish real posts from generated ones — drives quality up"},
             {icon:"ti-refresh",  color:"#1D9E75", label:"Adversarial training", desc:"Generator and Discriminator compete until synthetic posts are indistinguishable"},
             {icon:"ti-database", color:"#BA7517", label:"Augmented dataset", desc:"Synthetic posts added to real feedback to balance rare emotion classes"},
           ].map(g=>`<div style="background:var(--color-background-secondary);border-radius:8px;padding:10px">
@@ -704,6 +738,56 @@ function render(){
             <strong>Why not deployed yet:</strong> GAN training requires 1,000+ real labelled posts to stabilise. As the community grows and the feedback table fills, a GAN fine-tuning run will be triggered automatically via the RL pipeline above.
           </p>
         </div>
+      </div>
+    `;
+  }
+
+  // ── Settings tab ──────────────────────────────────────────────────────
+  else if(S.tab==="settings"){
+    content=`
+      <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Account</p>
+      <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);border:1px solid var(--color-border-tertiary);border-radius:14px;padding:14px 16px;margin-bottom:16px">
+        <p style="font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px">{{ display_name }}</p>
+        <p style="font-size:11px;color:var(--color-text-secondary)">Logged in · Your real identity is never stored</p>
+      </div>
+
+      <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Your data</p>
+      <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);border:1px solid var(--color-border-tertiary);border-radius:14px;overflow:hidden;margin-bottom:16px">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--color-border-tertiary)">
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">Export my data</p>
+          <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">Download everything WithUs holds about you as JSON (GDPR Art. 20).</p>
+          <a href="/api/export-data" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;background:#DBEAFE;color:#2563EB;text-decoration:none">
+            <i class="ti ti-download" style="font-size:14px" aria-hidden="true"></i> Export
+          </a>
+        </div>
+        <div style="padding:12px 16px">
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">Delete my account</p>
+          <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">Permanently erase all your posts, reports and account. Cannot be undone.</p>
+          <button onclick="confirmDelete()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;background:#FEE2E2;color:#991B1B;border:none;cursor:pointer">
+            <i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i> Delete all my data
+          </button>
+        </div>
+      </div>
+
+      <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Privacy</p>
+      <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);border:1px solid var(--color-border-tertiary);border-radius:14px;padding:12px 16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <i class="ti ti-incognito" style="font-size:18px;color:#2563EB" aria-hidden="true"></i>
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary)">You are anonymous</p>
+        </div>
+        <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:10px">
+          Your username is stored only as a SHA-256 hash. Risk scores are private and never shown publicly.
+          Medium/high cases notify a trained human reviewer — using your anonymous code only. No punitive action is ever taken.
+        </p>
+        <a href="/privacy" style="font-size:12px;color:#2563EB;text-decoration:none">Full privacy policy →</a>
+      </div>
+
+      <p style="font-size:12px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Reviewer access</p>
+      <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);border:1px solid var(--color-border-tertiary);border-radius:14px;padding:12px 16px;margin-bottom:16px">
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Trained human reviewers only.</p>
+        <a href="/reviewer" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:500;background:#DBEAFE;color:#2563EB;text-decoration:none">
+          <i class="ti ti-users" style="font-size:14px" aria-hidden="true"></i> Open reviewer queue
+        </a>
       </div>
     `;
   }
@@ -752,7 +836,7 @@ function render(){
     const cm=S.commentModal;
     const cmtItems=cm.comments.length
       ?cm.comments.map(c=>`<div style="display:flex;gap:10px;margin-bottom:14px">
-          <div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#534AB7;flex-shrink:0">${c.avatar}</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#2563EB;flex-shrink:0">${c.avatar}</div>
           <div style="flex:1">
             <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:2px">
               <span style="font-size:12px;font-weight:600;color:var(--color-text-primary)">${c.name}</span>
@@ -773,9 +857,9 @@ function render(){
             ${cm.loading?'<p style="text-align:center;color:var(--color-text-secondary);padding:24px 0;font-size:13px">Loading…</p>':cmtItems}
           </div>
           <div style="padding:12px 14px;border-top:0.5px solid var(--color-border-tertiary);display:flex;gap:8px;align-items:flex-end;flex-shrink:0">
-            <div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#534AB7;flex-shrink:0">${USER_INITIALS}</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#2563EB;flex-shrink:0">${USER_INITIALS}</div>
             <textarea id="cmtdraft" rows="1" placeholder="Add a supportive comment…" style="flex:1;resize:none;font-size:13px;line-height:1.5;border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:8px 10px;background:var(--color-background-secondary);color:var(--color-text-primary);overflow:hidden">${cm.draft}</textarea>
-            <button onclick="submitComment()" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;background:#534AB7;color:#fff;border:none;cursor:pointer;flex-shrink:0;min-width:56px">
+            <button onclick="submitComment()" style="padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;background:#2563EB;color:#fff;border:none;cursor:pointer;flex-shrink:0;min-width:56px">
               ${cm.submitting?'…':'Send'}
             </button>
           </div>
@@ -797,6 +881,7 @@ function render(){
         </a>
       </div>
     </div>
+    ${guidelinesBanner}
     ${nav}
     <div style="padding:0 14px">${content}${resourceModal}</div>
     ${commentModal}
@@ -854,9 +939,17 @@ async function switchTab(key){
   if(key==="ai"){
     try{
       const [sr,wr]=await Promise.all([fetch("/api/stats"),fetch("/api/week-data")]);
-      if(sr.ok){ const d=await sr.json(); state.communityAccuracy=d.accuracy; state.feedbackTotal=d.total; state.feedbackCorrect=d.correct; }
+      if(sr.ok){ const d=await sr.json(); const fs=d.feedbackStats||{}; state.communityAccuracy=fs.accuracy; state.feedbackTotal=fs.total||0; state.feedbackCorrect=fs.correct||0; }
       if(wr.ok){ state.weekData=await wr.json(); }
       render();
+    }catch(e){}
+  }
+
+  // Settings — load past reports
+  if(key==="settings" && !state.reportHistoryLoaded){
+    try{
+      const r=await fetch("/api/reports");
+      if(r.ok){ const d=await r.json(); state.reportHistory=d.reports||[]; state.reportHistoryLoaded=true; render(); }
     }catch(e){}
   }
 
@@ -880,7 +973,7 @@ async function openComments(postId){
   try{
     const r=await fetch(`/api/comments/${postId}`);
     const data=await r.json();
-    state.commentModal.comments=data;
+    state.commentModal.comments=data.comments||[];
     state.commentModal.loading=false;
   }catch(e){
     state.commentModal.loading=false;
@@ -928,21 +1021,18 @@ async function submitComment(){
     const r=await fetch("/api/comment",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({post_id:cm.postId,text:cm.draft.trim()}),
+      body:JSON.stringify({postId:cm.postId,text:cm.draft.trim()}),
     });
     const data=await r.json();
-    if(data.ok){
-      // Update comment list
+    if(data.comment){
+      const c=data.comment;
       state.commentModal.comments.push({
-        id:Date.now(),avatar:data.avatar,name:data.name,text:data.text,time:"now"
+        id:c.id,avatar:c.avatar,name:c.name,text:c.text,time:"now"
       });
       state.commentModal.draft="";
       // Update count on the post card
-      const countEl=document.getElementById(`cmtcount-${cm.postId}`);
-      if(countEl) countEl.textContent=data.count;
-      // Update in posts array too
       const p=state.posts.find(p=>p.id===cm.postId);
-      if(p) p.comments=data.count;
+      if(p){ p.comments=(p.comments||0)+1; }
     }
   }catch(e){}
   state.commentModal.submitting=false;
@@ -961,16 +1051,14 @@ async function giveFeedback(postId, emotion, isCorrect){
     const r=await fetch("/api/feedback",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({post_id:postId, predicted_emotion:emotion, is_correct:isCorrect}),
+      body:JSON.stringify({postId, predicted:emotion, isCorrect}),
     });
     if(r.ok){
-      const data=await r.json();
-      if(data.community_accuracy!==null){
-        state.communityAccuracy=data.community_accuracy;
-        state.feedbackTotal=(state.feedbackTotal||0)+1;
-        if(isCorrect) state.feedbackCorrect=(state.feedbackCorrect||0)+1;
-        render();
-      }
+      state.feedbackTotal=(state.feedbackTotal||0)+1;
+      if(isCorrect) state.feedbackCorrect=(state.feedbackCorrect||0)+1;
+      const total=state.feedbackTotal, correct=state.feedbackCorrect||0;
+      state.communityAccuracy=total>0?Math.round(correct/total*100):null;
+      render();
     }
   }catch(e){}
 }
@@ -992,8 +1080,9 @@ async function doPost(){
       body:JSON.stringify({text:state.newText.trim(),tags:[...state.newTags]}),
     });
     if(resp.ok){
-      const newPost=await resp.json();
-      state.posts.unshift(newPost);
+      const data=await resp.json();
+      state.posts.unshift(data.post);
+      if(data.weekData) state.weekData=data.weekData;
     }
   } catch(e){
     // Fallback: simple client-side emotion guess
@@ -1010,11 +1099,6 @@ async function doPost(){
 
   state.newText=""; state.newTags=[]; state.analyzing=false;
   render();
-  // Refresh week stats so postsCount, negTagCount, posTagCount update immediately
-  try{
-    const r=await fetch("/api/week-data");
-    if(r.ok){ state.weekData=await r.json(); render(); }
-  }catch(e){}
 }
 
 function setAnswer(key,val){
@@ -1039,13 +1123,13 @@ async function nextQ(){
     });
     if(resp.ok){
       const report=await resp.json();
-      state.riskTier=report.risk_tier;
+      state.riskTier=report.riskTier;
       state.reportData={
-        riskTier:report.risk_tier,
-        message:report.supportive_message,
-        quizScore:report.quiz_score,
-        combinedScore:report.combined_score,
-        needsHumanReview:report.needs_human_review,
+        riskTier:report.riskTier,
+        message:report.message,
+        quizScore:report.quizScore,
+        combinedScore:report.combinedScore,
+        needsHumanReview:report.needsHumanReview,
         week:report.week,
       };
     }
@@ -1088,13 +1172,7 @@ async function pollFeed(){
 
 function loadNewPosts(){
   const pending=(state._pendingPosts||[]);
-  pending.forEach(p=>{
-    _knownIds.add(p.id);
-    // Insert before demo posts (which have negative IDs)
-    const demoStart=state.posts.findIndex(x=>x.id<0);
-    if(demoStart>=0) state.posts.splice(demoStart,0,p);
-    else state.posts.unshift(p);
-  });
+  pending.forEach(p=>{ _knownIds.add(p.id); state.posts.unshift(p); });
   state._pendingPosts=[];
   state.newPostsAvailable=0;
   render();
@@ -1102,6 +1180,34 @@ function loadNewPosts(){
 
 // Poll every 20 seconds
 setInterval(pollFeed, 20000);
+
+// ── Live emotion preview ──────────────────────────────────────────────────
+function liveEmotion(text){
+  const t=text.toLowerCase();
+  const kw={
+    joy:    ["sober","clean","resisted","proud","grateful","strong","recovery","better","hopeful","milestone","managed","refused"],
+    sadness:["ashamed","relapsed","failed","hopeless","alone","isolated","guilty","worthless","regret","withdrawal","shame"],
+    fear:   ["craving","triggered","urge","anxious","panic","scared","dread","struggling","pressure","nervous","tempt"],
+    anger:  ["angry","furious","frustrated","rage","unfair","blame","hate"],
+    disgust:["disgusted","sick","repulsed"],
+  };
+  for(const [emo,words] of Object.entries(kw)){
+    if(words.some(w=>t.includes(w))) return emo;
+  }
+  return text.length>10?"neutral":null;
+}
+
+// ── Delete account ────────────────────────────────────────────────────────
+async function confirmDelete(){
+  if(!confirm("This will permanently delete all your posts, screening results, and account.\n\nThis cannot be undone. Continue?")) return;
+  const r=await fetch("/api/delete-account",{method:"POST"});
+  if(r.ok){
+    alert("All your data has been deleted. You will now be logged out.");
+    window.location.href="/login";
+  } else {
+    alert("Something went wrong. Please try again.");
+  }
+}
 
 // ── Boot ──────────────────────────────────────────────────────────────────
 render();

@@ -1,71 +1,199 @@
-{% extends "base.html" %}
-{% block title %}Reviewer Queue — SafeGuard{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>WithUs — Reviewer Queue</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.33.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#EFF6FF;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  min-height:100vh;
+  padding-bottom:3rem;
+  position:relative;overflow:hidden;
+}
+body::before{
+  content:'';position:fixed;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,0.14) 0%,transparent 70%);
+  top:-100px;left:-120px;pointer-events:none;
+}
+body::after{
+  content:'';position:fixed;width:360px;height:360px;border-radius:50%;
+  background:radial-gradient(circle,rgba(29,158,117,0.12) 0%,transparent 70%);
+  bottom:-60px;right:-60px;pointer-events:none;
+}
+.wrap{max-width:560px;margin:0 auto;position:relative}
+.header{
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(37,99,235,0.1);
+  padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:10;
+}
+.header a{color:#2563EB;text-decoration:none;display:flex;align-items:center}
+.header-title{font-size:16px;font-weight:600;color:#1e3a8a}
+.header-sub{font-size:11px;color:#64748b;margin-top:2px}
+.body{padding:16px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{
+  background:rgba(255,255,255,0.85);backdrop-filter:blur(8px);
+  border:1px solid rgba(37,99,235,0.1);border-radius:14px;
+  padding:12px;text-align:center;
+}
+.stat-num{font-size:22px;font-weight:700;color:#2563EB}
+.stat-label{font-size:11px;color:#64748b;margin-top:2px}
+.empty{
+  background:rgba(255,255,255,0.85);backdrop-filter:blur(8px);
+  border:1px solid rgba(37,99,235,0.1);border-radius:16px;
+  padding:40px 24px;text-align:center;
+}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:600;color:#1e3a8a;margin-bottom:6px}
+.empty-sub{font-size:13px;color:#64748b}
+.report-card{
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);
+  border:1px solid rgba(37,99,235,0.1);border-radius:16px;
+  overflow:hidden;margin-bottom:12px;
+  box-shadow:0 2px 12px rgba(37,99,235,0.06);
+}
+.report-head{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(37,99,235,0.08);
+}
+.tier-badge{
+  display:inline-flex;align-items:center;
+  padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.tier-low   {background:#DCFCE7;color:#166534}
+.tier-medium{background:#FEF9C3;color:#854D0E}
+.tier-high  {background:#FEE2E2;color:#991B1B}
+.anon-id{
+  font-family:monospace;font-size:12px;
+  background:#EFF6FF;color:#2563EB;
+  padding:3px 8px;border-radius:6px;
+  flex:1;
+}
+.report-week{font-size:12px;color:#64748b}
+.report-body{padding:12px 16px}
+.score-row{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.score-item{font-size:12px;color:#64748b}
+.score-item strong{color:#1e293b}
+.signals{font-size:12px;color:#64748b;margin-bottom:12px}
+.signal-tag{
+  display:inline-flex;align-items:center;gap:3px;
+  background:#EFF6FF;color:#2563EB;
+  padding:2px 8px;border-radius:8px;
+  margin:2px 2px 2px 0;font-size:11px;
+}
+.action-row{display:flex;align-items:center;gap:10px}
+.done-label{font-size:12px;color:#1D9E75;display:flex;align-items:center;gap:4px}
+.btn-offer{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:10px;
+  font-size:13px;font-weight:600;
+  background:#2563EB;color:#fff;
+  border:none;cursor:pointer;
+  font-family:inherit;
+  transition:background .15s;
+}
+.btn-offer:hover{background:#1d4ed8}
+</style>
+</head>
+<body>
 
-<div class="ptitle">Human Review Queue</div>
-<div class="psub">Trained reviewers only — users are identified by anonymous code, never by name.</div>
+<div class="wrap">
 
-{% if queue %}
-<div class="card" style="padding:0;overflow:hidden">
-  <table class="rtable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Anon user</th>
-        <th>Week</th>
-        <th>Score</th>
-        <th>Tier</th>
-        <th>Action</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in queue %}
-      <tr>
-        <td style="color:var(--muted)">{{ item.id }}</td>
-        <td><code style="font-size:12px;background:#f5f5f5;padding:2px 6px;border-radius:4px">{{ item.short_user }}</code></td>
-        <td>{{ item.week }}</td>
-        <td>{{ item.combined_score | round(1) }}&thinsp;/&thinsp;24</td>
-        <td>
-          <span class="tier tier-{{ item.risk_tier }}">{{ item.risk_tier | upper }}</span>
-        </td>
-        <td>
+  <div class="header">
+    <a href="/app" aria-label="Back to app">
+      <i class="ti ti-arrow-left" style="font-size:20px" aria-hidden="true"></i>
+    </a>
+    <div>
+      <div class="header-title">Human Review Queue</div>
+      <div class="header-sub">Trained reviewers only — users identified by anonymous code, never by name</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    {% set total = queue | length %}
+    {% set pending = queue | selectattr("reviewer_action", "none") | list | length %}
+    {% set actioned = total - pending %}
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">{{ total }}</div>
+        <div class="stat-label">Total flagged</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#D97706">{{ pending }}</div>
+        <div class="stat-label">Pending review</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#1D9E75">{{ actioned }}</div>
+        <div class="stat-label">Support offered</div>
+      </div>
+    </div>
+
+    {% if not queue %}
+    <div class="empty">
+      <div class="empty-icon">✅</div>
+      <div class="empty-title">Queue is clear</div>
+      <div class="empty-sub">No reports are currently flagged for review.</div>
+    </div>
+
+    {% else %}
+    {% for item in queue %}
+    <div class="report-card">
+      <div class="report-head">
+        <span class="tier-badge tier-{{ item.risk_tier }}">{{ item.risk_tier }}</span>
+        <span class="anon-id">{{ item.short_user }}</span>
+        <span class="report-week">{{ item.week }}</span>
+      </div>
+      <div class="report-body">
+        <div class="score-row">
+          <div class="score-item"><strong>{{ item.combined_score | round(1) }}</strong> / 24 combined</div>
+          <div class="score-item"><strong>{{ item.report.quiz_score }}</strong> / 24 quiz</div>
+          <div class="score-item"><strong>{{ item.report.emotion_score | round(1) }}</strong> / 24 emotion</div>
+        </div>
+
+        {% set summary = item.report.emotion_summary %}
+        {% if summary.values() | sum > 0 %}
+        <div class="signals">
+          Signals:
+          {% for e, c in summary.items() %}{% if c > 0 %}
+          <span class="signal-tag">{{ e }}: {{ c }}</span>
+          {% endif %}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="action-row">
           {% if item.reviewer_action %}
-            <span style="color:#0da552;font-size:13px">✅ Referral offered</span>
+          <div class="done-label">
+            <i class="ti ti-circle-check" style="font-size:15px" aria-hidden="true"></i>
+            Referral offered
+          </div>
           {% else %}
-            <span style="color:var(--muted);font-size:13px">Pending</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if not item.reviewer_action %}
-          <form method="POST" action="{{ url_for('mark_referral', report_id=item.id) }}">
-            <button type="submit" class="btn btn-green" style="padding:6px 13px;font-size:13px">
-              Offer Referral
+          <form method="POST" action="{{ url_for('mark_referral', report_id=item.id) }}" style="margin:0">
+            <button type="submit" class="btn-offer">
+              <i class="ti ti-heart-handshake" style="font-size:15px" aria-hidden="true"></i>
+              Offer referral
             </button>
           </form>
           {% endif %}
-        </td>
-      </tr>
-      {# Detail sub-row #}
-      <tr style="background:#fafafa">
-        <td colspan="7" style="padding:10px 14px;font-size:13px;color:var(--muted)">
-          Quiz: {{ item.report.quiz_score }}/24 ·
-          Emotion score: {{ item.report.emotion_score }}/24 ·
-          Signals:
-          {% for e, c in item.report.emotion_summary.items() %}{% if c > 0 %}{{ e }}:{{ c }} {% endif %}{% endfor %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+  </div>
 </div>
 
-{% else %}
-<div class="empty">
-  <div class="big">✅</div>
-  <div class="etitle">Queue is clear</div>
-  <div>No reports are currently flagged for review.</div>
-</div>
-{% endif %}
-
-{% endblock %}
+</body>
+</html>
